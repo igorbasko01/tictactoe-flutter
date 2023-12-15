@@ -42,6 +42,16 @@ class MinimaxPlayStrategy implements PlayStrategy {
     var movesTree = MovesTree(board, moves);
     return movesTree;
   }
+
+  int boardScore(Board board, CellState markType) {
+    if (board.isWinner(markType)) {
+      return 1;
+    } else if (board.isWinner(markType.opposite())) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
 }
 
 class MovesTree {

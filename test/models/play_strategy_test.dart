@@ -76,4 +76,59 @@ void main() {
       expect(movesTree.nextMoves[6].currentBoard.cells[8], CellState.x);
     });
   });
+
+  group('board score', () {
+    test('board score for empty board is 0', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      final score = strategy.boardScore(board, CellState.x);
+      expect(score, 0);
+    });
+
+    test('board score for board with x winning row is 1', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.x);
+      board.setCell(2, CellState.x);
+      final score = strategy.boardScore(board, CellState.x);
+      expect(score, 1);
+    });
+
+    test('board score for board with o winning row is -1', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.o);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.o);
+      final score = strategy.boardScore(board, CellState.x);
+      expect(score, -1);
+    });
+
+    test('board score for board that is still in play is 0', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      final score = strategy.boardScore(board, CellState.x);
+      expect(score, 0);
+    });
+
+    test('board score for a draw is 0', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(5, CellState.o);
+      board.setCell(6, CellState.o);
+      board.setCell(7, CellState.x);
+      board.setCell(8, CellState.x);
+      final score = strategy.boardScore(board, CellState.x);
+      expect(score, 0);
+    });
+  });
 }

@@ -37,6 +37,16 @@ class Board {
     return newBoard;
   }
 
+  bool isWinner(CellState state) {
+    if (state == CellState.x) {
+      return _xWins();
+    } else if (state == CellState.o) {
+      return _oWins();
+    } else {
+      return false;
+    }
+  }
+
   bool _stillPlaying() {
     return cells.contains(CellState.empty);
   }
@@ -92,6 +102,20 @@ class CellInvalidIndexException implements Exception {
       : message = 'Cell index $index is invalid';
 }
 
-enum CellState { empty, x, o }
+enum CellState {
+  empty,
+  x,
+  o;
+
+  CellState opposite() {
+    if (this == CellState.x) {
+      return CellState.o;
+    } else if (this == CellState.o) {
+      return CellState.x;
+    } else {
+      return CellState.empty;
+    }
+  }
+}
 
 enum BoardCondition { stillPlaying, xWins, oWins, draw }

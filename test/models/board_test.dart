@@ -152,6 +152,104 @@ void main() {
     });
   });
 
+  group('cell state', () {
+    test('cell state opposite returns x when o', () {
+      expect(CellState.o.opposite(), CellState.x);
+    });
+    test('cell state opposite returns o when x', () {
+      expect(CellState.x.opposite(), CellState.o);
+    });
+    test('cell state opposite returns empty when empty', () {
+      expect(CellState.empty.opposite(), CellState.empty);
+    });
+  });
+
+  group('isWinner', () {
+    test('isWinner returns true if x wins in a row', () {
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(2, CellState.x);
+      expect(board.isWinner(CellState.x), true);
+    });
+
+    test('isWinner returns false if o wins in a row but checked for x', () {
+      final board = Board();
+      board.setCell(0, CellState.o);
+      board.setCell(3, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(2, CellState.o);
+      expect(board.isWinner(CellState.x), false);
+    });
+
+    test('isWinner returns true if x wins in a column', () {
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(3, CellState.x);
+      board.setCell(2, CellState.o);
+      board.setCell(6, CellState.x);
+      expect(board.isWinner(CellState.x), true);
+    });
+
+    test('isWinner returns true if x wins in a diagonal', () {
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(2, CellState.o);
+      board.setCell(8, CellState.x);
+      expect(board.isWinner(CellState.x), true);
+    });
+
+    test('isWinner returns true if o wins in a row', () {
+      final board = Board();
+      board.setCell(6, CellState.x);
+      board.setCell(0, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(5, CellState.x);
+      board.setCell(2, CellState.o);
+      expect(board.isWinner(CellState.o), true);
+    });
+
+    test('isWinner returns true if o wins in a column', () {
+      final board = Board();
+      board.setCell(2, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(3, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(6, CellState.x);
+      board.setCell(7, CellState.o);
+      expect(board.isWinner(CellState.o), true);
+    });
+
+    test('isWinner returns true if o wins in a diagonal', () {
+      final board = Board();
+      board.setCell(1, CellState.x);
+      board.setCell(0, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(6, CellState.x);
+      board.setCell(8, CellState.o);
+      expect(board.isWinner(CellState.o), true);
+    });
+
+    test('isWinner returns false if no winner', () {
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(5, CellState.o);
+      expect(board.isWinner(CellState.x), false);
+    });
+  });
+
   test('board copy returns new board with same cells', () {
     final board = Board();
     board.setCell(0, CellState.x);
