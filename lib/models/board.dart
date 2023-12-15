@@ -29,6 +29,14 @@ class Board {
     }
   }
 
+  Board copy() {
+    var newBoard = Board();
+    for (var i = 0; i < cells.length; i++) {
+      newBoard.setCell(i, cells[i]);
+    }
+    return newBoard;
+  }
+
   bool _stillPlaying() {
     return cells.contains(CellState.empty);
   }

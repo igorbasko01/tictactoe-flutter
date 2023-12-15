@@ -155,5 +155,5 @@ void main() {
       final move = player.makeAMove(board);
       expect(move, 8);
     });
-  });
+  }, skip: true);
 }

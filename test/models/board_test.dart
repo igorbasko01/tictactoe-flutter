@@ -151,4 +151,19 @@ void main() {
       expect(board.boardCondition(), BoardCondition.oWins);
     });
   });
+
+  test('board copy returns new board with same cells', () {
+    final board = Board();
+    board.setCell(0, CellState.x);
+    board.setCell(1, CellState.o);
+    board.setCell(2, CellState.x);
+    board.setCell(3, CellState.o);
+    board.setCell(4, CellState.x);
+    board.setCell(5, CellState.o);
+    board.setCell(6, CellState.x);
+    board.setCell(7, CellState.o);
+    board.setCell(8, CellState.x);
+    final copy = board.copy();
+    expect(copy.cells, board.cells);
+  });
 }
