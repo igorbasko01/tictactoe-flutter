@@ -1,7 +1,10 @@
 import 'package:tictactoe_flutter/models/board.dart';
+import 'package:tictactoe_flutter/models/play_strategy.dart';
 
 abstract class Player {
   CellState get markType;
+
+  int makeAMove(Board board);
 }
 
 class HumanPlayer extends Player {
@@ -13,16 +16,27 @@ class HumanPlayer extends Player {
       throw InvalidMarkTypeException(markType, [CellState.x, CellState.o]);
     }
   }
+
+  @override
+  int makeAMove(Board board) {
+    return -1;
+  }
 }
 
 class ComputerPlayer extends Player {
   @override
   final CellState markType;
+  final PlayStrategy playStrategy;
 
-  ComputerPlayer(this.markType) {
+  ComputerPlayer(this.markType, this.playStrategy) {
     if (markType == CellState.empty) {
       throw InvalidMarkTypeException(markType, [CellState.x, CellState.o]);
     }
+  }
+
+  @override
+  int makeAMove(Board board) {
+    return playStrategy.makeAMove(board);
   }
 }
 
