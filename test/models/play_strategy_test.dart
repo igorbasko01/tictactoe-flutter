@@ -3,6 +3,13 @@ import 'package:tictactoe_flutter/models/board.dart';
 import 'package:tictactoe_flutter/models/play_strategy.dart';
 
 void main() {
+  group('minimax initialize', () {
+    test('minimax strategy initialized with player mark type', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.x);
+      expect(strategy.playerMarkType, CellState.x);
+    });
+  });
+
   group('minimax possibleMoves', () {
     test('minimax strategy possible moves of empty board, returns 9 options', () {
       final strategy = MinimaxPlayStrategy();
@@ -84,6 +91,85 @@ void main() {
       expect(movesTree.nextMoves.length, 9);
       expect(movesTree.nextMoves[0].nextMoves.length, 8);
       expect(movesTree.nextMoves[0].nextMoves[0].nextMoves.length, 7);
+    });
+
+    test('return empty tree if the root board is full', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(5, CellState.o);
+      board.setCell(6, CellState.x);
+      board.setCell(7, CellState.o);
+      board.setCell(8, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 0);
+    });
+
+    test('score a tree with a single level starting from one step from winning', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 5);
+      expect(movesTree.currentBoardScore, 0);
+      expect(movesTree.nextMoves[0].currentBoardScore, 1);
+      expect(movesTree.nextMoves[1].currentBoardScore, 0);
+      expect(movesTree.nextMoves[2].currentBoardScore, 0);
+      expect(movesTree.nextMoves[3].currentBoardScore, 0);
+      expect(movesTree.nextMoves[4].currentBoardScore, 0);
+    });
+
+    test('score a tree with a single level starting from one step from losing', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 5);
+      expect(movesTree.currentBoardScore, 0);
+      expect(movesTree.nextMoves[0].currentBoardScore, -1);
+      expect(movesTree.nextMoves[1].currentBoardScore, 0);
+      expect(movesTree.nextMoves[2].currentBoardScore, 0);
+      expect(movesTree.nextMoves[3].currentBoardScore, 0);
+      expect(movesTree.nextMoves[4].currentBoardScore, 0);
+    });
+
+    test('return empty tree if the root board is winning', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(2, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 0);
+    });
+
+    test('return empty tree if the root board is losing', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      board.setCell(2, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 0);
     });
   });
 

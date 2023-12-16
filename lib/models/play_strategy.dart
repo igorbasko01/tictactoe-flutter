@@ -20,6 +20,10 @@ class RandomPlayStrategy implements PlayStrategy {
 }
 
 class MinimaxPlayStrategy implements PlayStrategy {
+  final CellState playerMarkType;
+
+  MinimaxPlayStrategy({this.playerMarkType = CellState.x});
+
   @override
   int makeAMove(Board board) {
     return 0;
@@ -38,12 +42,22 @@ class MinimaxPlayStrategy implements PlayStrategy {
   }
 
   MovesTree buildMovesTree(Board board, CellState markType, {int depth = 0}) {
+    if (board.isWinner(markType.opposite())) {
+      // checking win for previous player, because for current player
+      // we will know after calculating its possible moves.
+      // If previous player won, then no reason to continue calculating next moves.
+      return MovesTree(board, [], boardScore(board, playerMarkType));
+    }
     if (depth == 0) {
-      return MovesTree(board, []);
+      return MovesTree(board, [], boardScore(board, playerMarkType));
     } else {
       var moves = possibleMoves(board, markType);
-      var movesTrees = moves.map((move) => buildMovesTree(move, markType.opposite(), depth: depth - 1)).toList();
-      var movesTree = MovesTree.fromTree(board, movesTrees);
+      var movesTrees = moves
+          .map((move) =>
+              buildMovesTree(move, markType.opposite(), depth: depth - 1))
+          .toList();
+      var movesTree =
+          MovesTree(board, movesTrees, boardScore(board, playerMarkType));
       return movesTree;
     }
   }
@@ -62,9 +76,7 @@ class MinimaxPlayStrategy implements PlayStrategy {
 class MovesTree {
   final Board currentBoard;
   final List<MovesTree> nextMoves;
+  final int currentBoardScore;
 
-  MovesTree(this.currentBoard, List<Board> nextMoves)
-      : nextMoves = nextMoves.map((move) => MovesTree(move, [])).toList();
-
-  MovesTree.fromTree(this.currentBoard, this.nextMoves);
+  MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore);
 }
