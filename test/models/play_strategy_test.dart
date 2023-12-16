@@ -43,7 +43,7 @@ void main() {
     test('build tree with single level for empty board', () {
       final strategy = MinimaxPlayStrategy();
       final board = Board();
-      final movesTree = strategy.buildMovesTree(board, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
       expect(movesTree.currentBoard.cells, board.cells);
       expect(movesTree.nextMoves.length, 9);
       expect(movesTree.nextMoves[0].currentBoard.cells[0], CellState.x);
@@ -62,7 +62,7 @@ void main() {
       final board = Board();
       board.setCell(0, CellState.x);
       board.setCell(1, CellState.o);
-      final movesTree = strategy.buildMovesTree(board, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
       expect(movesTree.currentBoard.cells, board.cells);
       expect(movesTree.nextMoves.length, 7);
       expect(movesTree.nextMoves[0].currentBoard.cells[0], CellState.x);
@@ -74,6 +74,16 @@ void main() {
       expect(movesTree.nextMoves[4].currentBoard.cells[6], CellState.x);
       expect(movesTree.nextMoves[5].currentBoard.cells[7], CellState.x);
       expect(movesTree.nextMoves[6].currentBoard.cells[8], CellState.x);
+    });
+
+    test('build tree with 3 levels of moves starting from empty board', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 9);
+      expect(movesTree.nextMoves[0].nextMoves.length, 8);
+      expect(movesTree.nextMoves[0].nextMoves[0].nextMoves.length, 7);
     });
   });
 

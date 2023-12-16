@@ -37,10 +37,15 @@ class MinimaxPlayStrategy implements PlayStrategy {
     return moves;
   }
 
-  MovesTree buildMovesTree(Board board, CellState markType) {
-    var moves = possibleMoves(board, markType);
-    var movesTree = MovesTree(board, moves);
-    return movesTree;
+  MovesTree buildMovesTree(Board board, CellState markType, {int depth = 0}) {
+    if (depth == 0) {
+      return MovesTree(board, []);
+    } else {
+      var moves = possibleMoves(board, markType);
+      var movesTrees = moves.map((move) => buildMovesTree(move, markType.opposite(), depth: depth - 1)).toList();
+      var movesTree = MovesTree.fromTree(board, movesTrees);
+      return movesTree;
+    }
   }
 
   int boardScore(Board board, CellState markType) {
@@ -60,4 +65,6 @@ class MovesTree {
 
   MovesTree(this.currentBoard, List<Board> nextMoves)
       : nextMoves = nextMoves.map((move) => MovesTree(move, [])).toList();
+
+  MovesTree.fromTree(this.currentBoard, this.nextMoves);
 }
