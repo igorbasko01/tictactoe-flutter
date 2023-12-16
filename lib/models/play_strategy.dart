@@ -29,40 +29,38 @@ class MinimaxPlayStrategy implements PlayStrategy {
     return 0;
   }
 
-  List<Board> possibleMoves(Board board, CellState markType) {
+  List<Move> possibleNextMoves(Board board, CellState markType) {
     var emptyIndexedCells = board.cells.indexed
         .where((cell) => cell.$2 == CellState.empty)
         .toList();
-    var moves = emptyIndexedCells.map((cell) {
-      var newBoard = board.copy();
-      newBoard.setCell(cell.$1, markType);
-      return newBoard;
-    }).toList();
+    var moves = emptyIndexedCells.map((cell) => Move(cell.$1, markType)).toList();
     return moves;
   }
 
-  MovesTree buildMovesTree(Board board, CellState markType, {int depth = 0}) {
+  MovesTree buildMovesTree(Board board, CellState markType, {int depth = 0, Move? latestMove}) {
     if (board.isWinner(markType.opposite())) {
       // checking win for previous player, because for current player
       // we will know after calculating its possible moves.
       // If previous player won, then no reason to continue calculating next moves.
       var score = boardScore(board, playerMarkType);
-      return MovesTree(board, [], score, score);
+      return MovesTree(board, [], score, score, latestMove: latestMove);
     }
     if (depth == 0) {
       var score = boardScore(board, playerMarkType);
-      return MovesTree(board, [], score, score);
+      return MovesTree(board, [], score, score, latestMove: latestMove);
     } else {
-      var moves = possibleMoves(board, markType);
+      var moves = possibleNextMoves(board, markType);
       var movesTrees = moves
-          .map((move) =>
-              buildMovesTree(move, markType.opposite(), depth: depth - 1))
-          .toList();
+          .map((move) {
+            var newBoard = board.copy();
+            newBoard.setCell(move.index, move.markType);
+            return buildMovesTree(newBoard, markType.opposite(), depth: depth - 1, latestMove: move);
+          }).toList();
       var topScore = movesTrees
           .map((movesTree) => movesTree.bestMoveScore)
           .reduce((value, element) => max(value, element));
       var movesTree = MovesTree(
-          board, movesTrees, boardScore(board, playerMarkType), topScore);
+          board, movesTrees, boardScore(board, playerMarkType), topScore, latestMove: latestMove);
       return movesTree;
     }
   }
@@ -83,7 +81,44 @@ class MovesTree {
   final List<MovesTree> nextMoves;
   final int currentBoardScore;
   final int bestMoveScore;
+  final Move? latestMove;
 
   MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore,
-      this.bestMoveScore);
+      this.bestMoveScore, {this.latestMove});
+}
+
+class Move {
+  final int index;
+  final CellState markType;
+
+  Move(this.index, this.markType) {
+    if (index < 0 || index > 8) {
+      throw InvalidMoveIndexException(index);
+    }
+    if (markType == CellState.empty) {
+      throw InvalidMoveMarkTypeException('Cannot make a move with empty mark type');
+    }
+  }
+}
+
+class InvalidMoveIndexException implements Exception {
+  final int index;
+
+  InvalidMoveIndexException(this.index);
+
+  @override
+  String toString() {
+    return 'Invalid move index: $index';
+  }
+}
+
+class InvalidMoveMarkTypeException implements Exception {
+  final String message;
+
+  InvalidMoveMarkTypeException(this.message);
+
+  @override
+  String toString() {
+    return 'Invalid move mark type: $message';
+  }
 }

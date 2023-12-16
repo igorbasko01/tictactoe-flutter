@@ -10,39 +10,56 @@ void main() {
     });
   });
 
-  group('minimax possibleMoves', () {
-    test('minimax strategy possible moves of empty board, returns 9 options', () {
+  group('minimax possibleNextMoves', () {
+    test('minimax strategy possible moves of empty board, returns 9 options',
+        () {
       final strategy = MinimaxPlayStrategy();
       final board = Board();
-      final moves = strategy.possibleMoves(board, CellState.x);
+      final moves = strategy.possibleNextMoves(board, CellState.x);
       expect(moves.length, 9);
-      expect(moves[0].cells[0], CellState.x);
-      expect(moves[1].cells[1], CellState.x);
-      expect(moves[2].cells[2], CellState.x);
-      expect(moves[3].cells[3], CellState.x);
-      expect(moves[4].cells[4], CellState.x);
-      expect(moves[5].cells[5], CellState.x);
-      expect(moves[6].cells[6], CellState.x);
-      expect(moves[7].cells[7], CellState.x);
-      expect(moves[8].cells[8], CellState.x);
+      expect(moves[0].index, 0);
+      expect(moves[0].markType, CellState.x);
+      expect(moves[1].index, 1);
+      expect(moves[1].markType, CellState.x);
+      expect(moves[2].index, 2);
+      expect(moves[2].markType, CellState.x);
+      expect(moves[3].index, 3);
+      expect(moves[3].markType, CellState.x);
+      expect(moves[4].index, 4);
+      expect(moves[4].markType, CellState.x);
+      expect(moves[5].index, 5);
+      expect(moves[5].markType, CellState.x);
+      expect(moves[6].index, 6);
+      expect(moves[6].markType, CellState.x);
+      expect(moves[7].index, 7);
+      expect(moves[7].markType, CellState.x);
+      expect(moves[8].index, 8);
+      expect(moves[8].markType, CellState.x);
     });
 
-    test('minimax strategy possible moves of a board with two moves, returns 7 options', () {
+    test(
+        'minimax strategy possible moves of a board with two moves, returns 7 options',
+        () {
       final strategy = MinimaxPlayStrategy();
       final board = Board();
       board.setCell(0, CellState.x);
       board.setCell(1, CellState.o);
-      final moves = strategy.possibleMoves(board, CellState.x);
+      final moves = strategy.possibleNextMoves(board, CellState.x);
       expect(moves.length, 7);
-      expect(moves[0].cells[0], CellState.x);
-      expect(moves[0].cells[1], CellState.o);
-      expect(moves[0].cells[2], CellState.x);
-      expect(moves[1].cells[3], CellState.x);
-      expect(moves[2].cells[4], CellState.x);
-      expect(moves[3].cells[5], CellState.x);
-      expect(moves[4].cells[6], CellState.x);
-      expect(moves[5].cells[7], CellState.x);
-      expect(moves[6].cells[8], CellState.x);
+      expect(moves[0].index, 2);
+      expect(moves[0].markType, CellState.x);
+      expect(moves[1].index, 3);
+      expect(moves[1].markType, CellState.x);
+      expect(moves[2].index, 4);
+      expect(moves[2].markType, CellState.x);
+      expect(moves[3].index, 5);
+      expect(moves[3].markType, CellState.x);
+      expect(moves[4].index, 6);
+      expect(moves[4].markType, CellState.x);
+      expect(moves[5].index, 7);
+      expect(moves[5].markType, CellState.x);
+      expect(moves[6].index, 8);
+      expect(moves[6].markType, CellState.x);
     });
   });
 
@@ -110,7 +127,8 @@ void main() {
       expect(movesTree.nextMoves.length, 0);
     });
 
-    test('score a tree with a single level starting from one step from winning', () {
+    test('score a tree with a single level starting from one step from winning',
+        () {
       final strategy = MinimaxPlayStrategy();
       final board = Board();
       board.setCell(0, CellState.x);
@@ -128,7 +146,8 @@ void main() {
       expect(movesTree.nextMoves[4].currentBoardScore, 0);
     });
 
-    test('score a tree with a single level starting from one step from losing', () {
+    test('score a tree with a single level starting from one step from losing',
+        () {
       final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
       final board = Board();
       board.setCell(0, CellState.x);
@@ -263,6 +282,109 @@ void main() {
       board.setCell(8, CellState.x);
       final score = strategy.boardScore(board, CellState.x);
       expect(score, 0);
+    });
+  });
+
+  group('move data structure', () {
+    test('initialized with index and mark type', () {
+      final move = Move(0, CellState.x);
+      expect(move.index, 0);
+      expect(move.markType, CellState.x);
+    });
+
+    test('throws exception if initialized with invalid index', () {
+      expect(() => Move(-1, CellState.x),
+          throwsA(isA<InvalidMoveIndexException>()));
+      expect(() => Move(9, CellState.x),
+          throwsA(isA<InvalidMoveIndexException>()));
+    });
+
+    test('throws exception if initialized with empty mark type', () {
+      expect(() => Move(0, CellState.empty),
+          throwsA(isA<InvalidMoveMarkTypeException>()));
+    });
+  });
+
+  group('latest move in MovesTree', () {
+    test(
+        'latest move in a node in MovesTree is the move that was made on the current board',
+        () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(5, CellState.o);
+      board.setCell(6, CellState.x);
+      board.setCell(7, CellState.o);
+      board.setCell(8, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3, latestMove: Move(8, CellState.x));
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 0);
+      expect(movesTree.latestMove?.index, 8);
+      expect(movesTree.latestMove?.markType, CellState.x);
+    });
+
+    test('latest move in root MovesTree is null', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 9);
+      expect(movesTree.latestMove, null);
+    });
+
+    test('latest move in a node in MovesTree in the next level moves are the moves that were made between the root and the next move', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 9);
+      expect(movesTree.nextMoves[0].latestMove?.index, 0);
+      expect(movesTree.nextMoves[0].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[1].latestMove?.index, 1);
+      expect(movesTree.nextMoves[1].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[2].latestMove?.index, 2);
+      expect(movesTree.nextMoves[2].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[3].latestMove?.index, 3);
+      expect(movesTree.nextMoves[3].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[4].latestMove?.index, 4);
+      expect(movesTree.nextMoves[4].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[5].latestMove?.index, 5);
+      expect(movesTree.nextMoves[5].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[6].latestMove?.index, 6);
+      expect(movesTree.nextMoves[6].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[7].latestMove?.index, 7);
+      expect(movesTree.nextMoves[7].latestMove?.markType, CellState.x);
+      expect(movesTree.nextMoves[8].latestMove?.index, 8);
+      expect(movesTree.nextMoves[8].latestMove?.markType, CellState.x);
+    });
+
+    test('starting from first move latestMove of next moves is the difference move between the root and its nextMoves', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 8);
+      expect(movesTree.nextMoves[0].latestMove?.index, 1);
+      expect(movesTree.nextMoves[0].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[1].latestMove?.index, 2);
+      expect(movesTree.nextMoves[1].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[2].latestMove?.index, 3);
+      expect(movesTree.nextMoves[2].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[3].latestMove?.index, 4);
+      expect(movesTree.nextMoves[3].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[4].latestMove?.index, 5);
+      expect(movesTree.nextMoves[4].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[5].latestMove?.index, 6);
+      expect(movesTree.nextMoves[5].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[6].latestMove?.index, 7);
+      expect(movesTree.nextMoves[6].latestMove?.markType, CellState.o);
+      expect(movesTree.nextMoves[7].latestMove?.index, 8);
+      expect(movesTree.nextMoves[7].latestMove?.markType, CellState.o);
     });
   });
 }
