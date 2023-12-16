@@ -105,7 +105,7 @@ void main() {
       board.setCell(6, CellState.x);
       board.setCell(7, CellState.o);
       board.setCell(8, CellState.x);
-      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 3);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
       expect(movesTree.currentBoard.cells, board.cells);
       expect(movesTree.nextMoves.length, 0);
     });
@@ -170,6 +170,44 @@ void main() {
       final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
       expect(movesTree.currentBoard.cells, board.cells);
       expect(movesTree.nextMoves.length, 0);
+    });
+
+    test('root best board score is best of its children', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 5);
+      expect(movesTree.currentBoardScore, 0);
+      expect(movesTree.nextMoves[0].currentBoardScore, 1);
+      expect(movesTree.nextMoves[1].currentBoardScore, 0);
+      expect(movesTree.nextMoves[2].currentBoardScore, 0);
+      expect(movesTree.nextMoves[3].currentBoardScore, 0);
+      expect(movesTree.nextMoves[4].currentBoardScore, 0);
+      expect(movesTree.bestMoveScore, 1);
+    });
+
+    test('root best board score is best of its children, when loosing', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      board.setCell(4, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      expect(movesTree.currentBoard.cells, board.cells);
+      expect(movesTree.nextMoves.length, 5);
+      expect(movesTree.currentBoardScore, 0);
+      expect(movesTree.nextMoves[0].currentBoardScore, -1);
+      expect(movesTree.nextMoves[1].currentBoardScore, 0);
+      expect(movesTree.nextMoves[2].currentBoardScore, 0);
+      expect(movesTree.nextMoves[3].currentBoardScore, 0);
+      expect(movesTree.nextMoves[4].currentBoardScore, 0);
+      expect(movesTree.bestMoveScore, 0);
     });
   });
 

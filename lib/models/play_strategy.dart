@@ -46,18 +46,23 @@ class MinimaxPlayStrategy implements PlayStrategy {
       // checking win for previous player, because for current player
       // we will know after calculating its possible moves.
       // If previous player won, then no reason to continue calculating next moves.
-      return MovesTree(board, [], boardScore(board, playerMarkType));
+      var score = boardScore(board, playerMarkType);
+      return MovesTree(board, [], score, score);
     }
     if (depth == 0) {
-      return MovesTree(board, [], boardScore(board, playerMarkType));
+      var score = boardScore(board, playerMarkType);
+      return MovesTree(board, [], score, score);
     } else {
       var moves = possibleMoves(board, markType);
       var movesTrees = moves
           .map((move) =>
               buildMovesTree(move, markType.opposite(), depth: depth - 1))
           .toList();
-      var movesTree =
-          MovesTree(board, movesTrees, boardScore(board, playerMarkType));
+      var topScore = movesTrees
+          .map((movesTree) => movesTree.bestMoveScore)
+          .reduce((value, element) => max(value, element));
+      var movesTree = MovesTree(
+          board, movesTrees, boardScore(board, playerMarkType), topScore);
       return movesTree;
     }
   }
@@ -77,6 +82,8 @@ class MovesTree {
   final Board currentBoard;
   final List<MovesTree> nextMoves;
   final int currentBoardScore;
+  final int bestMoveScore;
 
-  MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore);
+  MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore,
+      this.bestMoveScore);
 }
