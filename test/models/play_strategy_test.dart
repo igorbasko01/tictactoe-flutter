@@ -8,6 +8,11 @@ void main() {
       final strategy = MinimaxPlayStrategy(playerMarkType: CellState.x);
       expect(strategy.playerMarkType, CellState.x);
     });
+
+    test('minimax strategy initialized with max depth', () {
+      final strategy = MinimaxPlayStrategy(maxDepth: 3);
+      expect(strategy.maxDepth, 3);
+    });
   });
 
   group('minimax possibleNextMoves', () {
@@ -385,6 +390,68 @@ void main() {
       expect(movesTree.nextMoves[6].latestMove?.markType, CellState.o);
       expect(movesTree.nextMoves[7].latestMove?.index, 8);
       expect(movesTree.nextMoves[7].latestMove?.markType, CellState.o);
+    });
+  });
+
+  group('chooseBestMove', () {
+    test('select the move when it is the highest score', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(2, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      final bestMove = strategy.chooseBestMove(movesTree.nextMoves);
+      expect(bestMove?.index, 8);
+      expect(bestMove?.markType, CellState.x);
+    });
+
+    test('return null when provided with empty list', () {
+      final strategy = MinimaxPlayStrategy();
+      final bestMove = strategy.chooseBestMove([]);
+      expect(bestMove, null);
+    });
+
+    test('select the first move if all the moves have the same score', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      final movesTree = strategy.buildMovesTree(board, CellState.x, depth: 1);
+      final bestMove = strategy.chooseBestMove(movesTree.nextMoves);
+      expect(bestMove?.index, 2);
+      expect(bestMove?.markType, CellState.x);
+    });
+  });
+
+  group('makeAMove', () {
+    test('makeAMove returns a move that wins the game', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(5, CellState.o);
+      final move = strategy.makeAMove(board);
+      expect(move, 6);
+    });
+
+    test('makeAMove throws a MoveNotFoundException if no move found', () {
+      final strategy = MinimaxPlayStrategy();
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(2, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(5, CellState.o);
+      board.setCell(6, CellState.x);
+      board.setCell(7, CellState.o);
+      board.setCell(8, CellState.x);
+      expect(() => strategy.makeAMove(board), throwsA(isA<MoveNotFoundException>()));
     });
   });
 }

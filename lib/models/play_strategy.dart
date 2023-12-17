@@ -21,23 +21,31 @@ class RandomPlayStrategy implements PlayStrategy {
 
 class MinimaxPlayStrategy implements PlayStrategy {
   final CellState playerMarkType;
+  final int maxDepth;
 
-  MinimaxPlayStrategy({this.playerMarkType = CellState.x});
+  MinimaxPlayStrategy({this.playerMarkType = CellState.x, this.maxDepth = 3});
 
   @override
   int makeAMove(Board board) {
-    return 0;
+    var movesTree = buildMovesTree(board, playerMarkType, depth: maxDepth);
+    var bestMove = chooseBestMove(movesTree.nextMoves);
+    if (bestMove == null) {
+      throw MoveNotFoundException('No best move found');
+    }
+    return bestMove.index;
   }
 
   List<Move> possibleNextMoves(Board board, CellState markType) {
     var emptyIndexedCells = board.cells.indexed
         .where((cell) => cell.$2 == CellState.empty)
         .toList();
-    var moves = emptyIndexedCells.map((cell) => Move(cell.$1, markType)).toList();
+    var moves =
+        emptyIndexedCells.map((cell) => Move(cell.$1, markType)).toList();
     return moves;
   }
 
-  MovesTree buildMovesTree(Board board, CellState markType, {int depth = 0, Move? latestMove}) {
+  MovesTree buildMovesTree(Board board, CellState markType,
+      {int depth = 0, Move? latestMove}) {
     if (board.isWinner(markType.opposite())) {
       // checking win for previous player, because for current player
       // we will know after calculating its possible moves.
@@ -50,17 +58,16 @@ class MinimaxPlayStrategy implements PlayStrategy {
       return MovesTree(board, [], score, score, latestMove: latestMove);
     } else {
       var moves = possibleNextMoves(board, markType);
-      var movesTrees = moves
-          .map((move) {
-            var newBoard = board.copy();
-            newBoard.setCell(move.index, move.markType);
-            return buildMovesTree(newBoard, markType.opposite(), depth: depth - 1, latestMove: move);
-          }).toList();
-      var topScore = movesTrees
-          .map((movesTree) => movesTree.bestMoveScore)
-          .reduce((value, element) => max(value, element));
+      var movesTrees = moves.map((move) {
+        var newBoard = board.copy();
+        newBoard.setCell(move.index, move.markType);
+        return buildMovesTree(newBoard, markType.opposite(),
+            depth: depth - 1, latestMove: move);
+      }).toList();
+      var topScore = _maxScore(movesTrees);
       var movesTree = MovesTree(
-          board, movesTrees, boardScore(board, playerMarkType), topScore, latestMove: latestMove);
+          board, movesTrees, boardScore(board, playerMarkType), topScore,
+          latestMove: latestMove);
       return movesTree;
     }
   }
@@ -74,6 +81,25 @@ class MinimaxPlayStrategy implements PlayStrategy {
       return 0;
     }
   }
+
+  Move? chooseBestMove(List<MovesTree> boardStates) {
+    if (boardStates.isEmpty) {
+      return null;
+    }
+    var maxScore = _maxScore(boardStates);
+    var bestState = boardStates.firstWhere(
+        (movesTree) => movesTree.bestMoveScore == maxScore);
+    return bestState.latestMove;
+  }
+
+  int _maxScore(List<MovesTree> boardStates) {
+    if (boardStates.isEmpty) {
+      return 0;
+    }
+    return boardStates
+        .map((movesTree) => movesTree.bestMoveScore)
+        .reduce((value, element) => max(value, element));
+  }
 }
 
 class MovesTree {
@@ -84,7 +110,8 @@ class MovesTree {
   final Move? latestMove;
 
   MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore,
-      this.bestMoveScore, {this.latestMove});
+      this.bestMoveScore,
+      {this.latestMove});
 }
 
 class Move {
@@ -96,7 +123,8 @@ class Move {
       throw InvalidMoveIndexException(index);
     }
     if (markType == CellState.empty) {
-      throw InvalidMoveMarkTypeException('Cannot make a move with empty mark type');
+      throw InvalidMoveMarkTypeException(
+          'Cannot make a move with empty mark type');
     }
   }
 }
@@ -120,5 +148,16 @@ class InvalidMoveMarkTypeException implements Exception {
   @override
   String toString() {
     return 'Invalid move mark type: $message';
+  }
+}
+
+class MoveNotFoundException implements Exception {
+  final String message;
+
+  MoveNotFoundException(this.message);
+
+  @override
+  String toString() {
+    return 'Move not found: $message';
   }
 }
