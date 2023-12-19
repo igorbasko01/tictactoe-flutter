@@ -11,3 +11,16 @@ class PlayerTurnTicTacToeState extends TicTacToeState {
 
   PlayerTurnTicTacToeState(this.board, this.player);
 }
+
+class ErrorTicTacToeState extends TicTacToeState {
+  final String message;
+
+  ErrorTicTacToeState(this.message);
+}
+
+class GameOverTicTacToeState extends TicTacToeState {
+  final Board board;
+  final BoardCondition boardCondition;
+
+  GameOverTicTacToeState(this.board, this.boardCondition);
+}

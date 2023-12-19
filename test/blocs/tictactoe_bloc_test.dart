@@ -87,4 +87,129 @@ void main() {
               })
             ]);
   });
+
+  group('on ui player makes a move', () {
+    blocTest('ui player makes the first move',
+        build: () => TicTacToeBloc(uiPlayer: HumanPlayer(CellState.x)),
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(0, CellState.x));
+        },
+        expect: () => [
+              predicate<PlayerTurnTicTacToeState>((state) {
+                return state.board.cells[0] == CellState.x &&
+                    // It should be the ui player, as the computer move is done inside the bloc
+                    state.player is HumanPlayer &&
+                    state.player.markType == CellState.x;
+              })
+            ]);
+
+    blocTest('ui player is the second to start and make a move',
+        build: () {
+          var board = Board();
+          // computer's move
+          board.setCell(0, CellState.x);
+          return TicTacToeBloc(
+              board: board, uiPlayer: HumanPlayer(CellState.o));
+        },
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(1, CellState.o));
+        },
+        expect: () => [
+              predicate<PlayerTurnTicTacToeState>((state) {
+                var numberOfEmptyCells = state.board.cells
+                    .where((cell) => cell == CellState.empty)
+                    .length;
+                // Expected number of move is 6 because computer should have made two moves:
+                // 1. First move is the one in the setup (computer)
+                // 2. Second move is the one in the act (player)
+                // 3. Third move is the one happens as part of the MakeAMove event (computer)
+                return numberOfEmptyCells == 6 &&
+                    state.player is HumanPlayer &&
+                    state.player.markType == CellState.o;
+              })
+            ]);
+
+    blocTest(
+        'get an error state when the ui player tries to make a move on an occupied cell',
+        build: () {
+          var board = Board();
+          board.setCell(0, CellState.x);
+          board.setCell(1, CellState.o);
+          return TicTacToeBloc(
+              board: board, uiPlayer: HumanPlayer(CellState.x));
+        },
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(0, CellState.x));
+        },
+        expect: () => [
+              predicate<ErrorTicTacToeState>((state) {
+                return state.message == 'Cell is already taken';
+              })
+            ]);
+
+    blocTest('return win state when ui player makes a winning move',
+        build: () {
+          var board = Board();
+          board.setCell(0, CellState.x);
+          board.setCell(3, CellState.o);
+          board.setCell(1, CellState.x);
+          board.setCell(4, CellState.o);
+          return TicTacToeBloc(
+              board: board, uiPlayer: HumanPlayer(CellState.x));
+        },
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(2, CellState.x));
+        },
+        expect: () => [
+              predicate<GameOverTicTacToeState>((state) {
+                return state.board.cells[2] == CellState.x &&
+                    state.boardCondition == BoardCondition.xWins;
+              })
+            ]);
+
+    blocTest('return draw state when ui player makes a draw move',
+        build: () {
+          var board = Board();
+          board.setCell(0, CellState.x);
+          board.setCell(1, CellState.o);
+          board.setCell(3, CellState.x);
+          board.setCell(4, CellState.o);
+          board.setCell(7, CellState.x);
+          board.setCell(6, CellState.o);
+          board.setCell(2, CellState.x);
+          board.setCell(5, CellState.o);
+          return TicTacToeBloc(
+              board: board, uiPlayer: HumanPlayer(CellState.x));
+        },
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(8, CellState.x));
+        },
+        expect: () => [
+              predicate<GameOverTicTacToeState>((state) {
+                return state.board.cells[8] == CellState.x &&
+                    state.boardCondition == BoardCondition.draw;
+              })
+            ]);
+
+    blocTest('return win state when computer player makes a winning move',
+        build: () {
+          var board = Board();
+          board.setCell(0, CellState.x);
+          board.setCell(3, CellState.o);
+          board.setCell(8, CellState.x);
+          board.setCell(4, CellState.o);
+          board.setCell(2, CellState.x);
+          return TicTacToeBloc(
+              board: board, uiPlayer: HumanPlayer(CellState.x));
+        },
+        act: (bloc) {
+          bloc.add(MakeAMoveTicTacToeEvent(5, CellState.o));
+        },
+        expect: () => [
+              predicate<GameOverTicTacToeState>((state) {
+                return state.board.cells[5] == CellState.o &&
+                    state.boardCondition == BoardCondition.oWins;
+              })
+            ]);
+  });
 }
