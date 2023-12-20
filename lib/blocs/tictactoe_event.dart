@@ -2,7 +2,15 @@ import 'package:tictactoe_flutter/models/board.dart';
 
 abstract class TicTacToeEvent {}
 
-class StartGameTicTacToeEvent extends TicTacToeEvent {}
+class StartGameTicTacToeEvent extends TicTacToeEvent {
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is StartGameTicTacToeEvent && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => 0;
+}
 
 class MakeAMoveTicTacToeEvent extends TicTacToeEvent {
   final int cellIndex;

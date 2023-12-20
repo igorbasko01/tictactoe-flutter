@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:tictactoe_flutter/blocs/tictactoe_bloc.dart';
@@ -20,6 +21,31 @@ void main() {
 
   tearDown(() {
     mockTicTacToeBloc?.close();
+  });
+
+  testWidgets('initial state of screen contains a Start Game button', (widgetTester) async {
+    when(() => mockTicTacToeBloc!.state).thenReturn(TicTacToeInitialState());
+    await widgetTester.pumpWidget(MaterialApp(
+      home: BlocProvider<TicTacToeBloc>.value(
+        value: mockTicTacToeBloc!,
+        child: const BoardScreen(),
+      ),
+    ));
+    var startGameButtonFinder = find.byKey(const Key('startGameButton'));
+    expect(startGameButtonFinder, findsOneWidget);
+  });
+
+  testWidgets('tapping the Start Game button invokes a StartGameTicTacToeEvent', (widgetTester) async {
+    when(() => mockTicTacToeBloc!.state).thenReturn(TicTacToeInitialState());
+    await widgetTester.pumpWidget(MaterialApp(
+      home: BlocProvider<TicTacToeBloc>.value(
+        value: mockTicTacToeBloc!,
+        child: const BoardScreen(),
+      ),
+    ));
+    var startGameButtonFinder = find.byKey(const Key('startGameButton'));
+    await widgetTester.tap(startGameButtonFinder);
+    verify(() => mockTicTacToeBloc!.add(StartGameTicTacToeEvent()));
   });
 
   group('first time tests, should be moved out of the group when correctly implemented', () {
