@@ -116,6 +116,17 @@ enum CellState {
       return CellState.empty;
     }
   }
+
+  @override
+  String toString() {
+    if (this == CellState.x) {
+      return 'X';
+    } else if (this == CellState.o) {
+      return 'O';
+    } else {
+      return ' ';
+    }
+  }
 }
 
 enum BoardCondition { stillPlaying, xWins, oWins, draw }
