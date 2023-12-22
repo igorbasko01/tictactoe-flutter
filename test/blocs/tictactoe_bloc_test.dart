@@ -154,8 +154,8 @@ void main() {
           bloc.add(MakeAMoveTicTacToeEvent(0, CellState.x));
         },
         expect: () => [
-              predicate<ErrorTicTacToeState>((state) {
-                return state.message == 'Cell is already taken';
+              predicate<PlayerTurnTicTacToeState>((state) {
+                return state.errorMessage == 'Cell is already taken';
               })
             ]);
 

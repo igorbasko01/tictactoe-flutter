@@ -8,8 +8,9 @@ class TicTacToeInitialState extends TicTacToeState {}
 class PlayerTurnTicTacToeState extends TicTacToeState {
   final Board board;
   final Player player;
+  final String? errorMessage;
 
-  PlayerTurnTicTacToeState(this.board, this.player);
+  PlayerTurnTicTacToeState(this.board, this.player, {this.errorMessage});
 }
 
 class ErrorTicTacToeState extends TicTacToeState {

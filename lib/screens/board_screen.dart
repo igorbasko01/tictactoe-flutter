@@ -25,7 +25,8 @@ class BoardScreen extends StatelessWidget {
               child: const Text('Start Game')),
         );
       } else if (state is PlayerTurnTicTacToeState) {
-        return _inAspectRatio(_board(state.board, currentPlayer: state.player));
+        return _inAspectRatio(_boardWithMessage(state.board,
+            currentPlayer: state.player, message: state.errorMessage));
       } else if (state is GameOverTicTacToeState) {
         return _inAspectRatio(
             _gameOver(state.board, state.boardCondition, blocContext));
@@ -76,13 +77,24 @@ class BoardScreen extends StatelessWidget {
     );
   }
 
+  Widget _boardWithMessage(Board board,
+      {Player? currentPlayer, String? message}) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(message ?? '', key: const Key('message'),),
+        Expanded(child: _board(board, currentPlayer: currentPlayer)),
+      ],
+    );
+  }
+
   Widget _gameOver(
       Board board, BoardCondition boardCondition, BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(boardCondition.toString()),
+          Text(boardCondition.toString(), key: const Key('message'),),
           ElevatedButton(
             key: const Key('startGameButton'),
             onPressed: () {

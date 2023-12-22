@@ -129,4 +129,19 @@ enum CellState {
   }
 }
 
-enum BoardCondition { stillPlaying, xWins, oWins, draw }
+enum BoardCondition {
+  stillPlaying, xWins, oWins, draw;
+
+  @override
+  String toString() {
+    if (this == BoardCondition.stillPlaying) {
+      return 'Still playing';
+    } else if (this == BoardCondition.xWins) {
+      return 'X wins';
+    } else if (this == BoardCondition.oWins) {
+      return 'O wins';
+    } else {
+      return 'Draw';
+    }
+  }
+}

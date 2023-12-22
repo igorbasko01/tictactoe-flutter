@@ -29,7 +29,8 @@ class TicTacToeBloc extends Bloc<TicTacToeEvent, TicTacToeState> {
     on<MakeAMoveTicTacToeEvent>(_onMakeAMove);
   }
 
-  void _onStartGame(StartGameTicTacToeEvent event, Emitter<TicTacToeState> emit) {
+  void _onStartGame(
+      StartGameTicTacToeEvent event, Emitter<TicTacToeState> emit) {
     board.reset();
     if (uiPlayer.markType == CellState.x) {
       emit(PlayerTurnTicTacToeState(board, uiPlayer));
@@ -40,7 +41,8 @@ class TicTacToeBloc extends Bloc<TicTacToeEvent, TicTacToeState> {
     }
   }
 
-  void _onMakeAMove(MakeAMoveTicTacToeEvent event, Emitter<TicTacToeState> emit) {
+  void _onMakeAMove(
+      MakeAMoveTicTacToeEvent event, Emitter<TicTacToeState> emit) {
     if (board.cells[event.cellIndex] == CellState.empty) {
       board.setCell(event.cellIndex, event.markType);
       if (board.boardCondition() != BoardCondition.stillPlaying) {
@@ -57,7 +59,8 @@ class TicTacToeBloc extends Bloc<TicTacToeEvent, TicTacToeState> {
       }
       emit(PlayerTurnTicTacToeState(board, uiPlayer));
     } else {
-      emit(ErrorTicTacToeState('Cell is already taken'));
+      emit(PlayerTurnTicTacToeState(board, uiPlayer,
+          errorMessage: 'Cell is already taken'));
     }
   }
 }
