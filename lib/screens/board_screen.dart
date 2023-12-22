@@ -4,6 +4,7 @@ import 'package:tictactoe_flutter/blocs/tictactoe_bloc.dart';
 import 'package:tictactoe_flutter/blocs/tictactoe_event.dart';
 import 'package:tictactoe_flutter/blocs/tictactoe_state.dart';
 import 'package:tictactoe_flutter/models/board.dart';
+import 'package:tictactoe_flutter/models/player.dart';
 
 class BoardScreen extends StatelessWidget {
   const BoardScreen({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class BoardScreen extends StatelessWidget {
               child: const Text('Start Game')),
         );
       } else if (state is PlayerTurnTicTacToeState) {
-        return _inAspectRatio(_board(state.board));
+        return _inAspectRatio(_board(state.board, currentPlayer: state.player));
       } else if (state is GameOverTicTacToeState) {
         return _inAspectRatio(
             _gameOver(state.board, state.boardCondition, blocContext));
@@ -45,7 +46,7 @@ class BoardScreen extends StatelessWidget {
     );
   }
 
-  Widget _board(Board board) {
+  Widget _board(Board board, {Player? currentPlayer}) {
     return GridView.builder(
       key: const Key('boardGrid'),
       itemCount: board.cells.length,
@@ -57,11 +58,17 @@ class BoardScreen extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         return Container(
+          key: Key('cell_$index'),
           decoration: BoxDecoration(
             border: Border.all(color: Colors.black),
           ),
           child: TextButton(
-            onPressed: () {},
+            onPressed: () {
+              if (currentPlayer != null) {
+                BlocProvider.of<TicTacToeBloc>(context).add(
+                    MakeAMoveTicTacToeEvent(index, currentPlayer.markType));
+              }
+            },
             child: Text(board.cells[index].toString()),
           ),
         );

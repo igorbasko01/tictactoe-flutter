@@ -30,6 +30,7 @@ class TicTacToeBloc extends Bloc<TicTacToeEvent, TicTacToeState> {
   }
 
   void _onStartGame(StartGameTicTacToeEvent event, Emitter<TicTacToeState> emit) {
+    board.reset();
     if (uiPlayer.markType == CellState.x) {
       emit(PlayerTurnTicTacToeState(board, uiPlayer));
     } else {

@@ -86,6 +86,18 @@ void main() {
                     state.player.markType == CellState.o;
               })
             ]);
+
+    blocTest('Clears the board when a new game starts',
+        build: () {
+          var board = Board();
+          board.setCell(0, CellState.x);
+          board.setCell(1, CellState.o);
+          board.setCell(2, CellState.x);
+          return TicTacToeBloc(board: board, uiPlayer: HumanPlayer(CellState.x));
+        },
+        act: (bloc) => bloc.add(StartGameTicTacToeEvent()),
+        verify: (bloc) =>
+            expect(bloc.board.cells, List.filled(9, CellState.empty)));
   });
 
   group('on ui player makes a move', () {

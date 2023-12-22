@@ -17,4 +17,15 @@ class MakeAMoveTicTacToeEvent extends TicTacToeEvent {
   final CellState markType;
 
   MakeAMoveTicTacToeEvent(this.cellIndex, this.markType);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MakeAMoveTicTacToeEvent &&
+          runtimeType == other.runtimeType &&
+          cellIndex == other.cellIndex &&
+          markType == other.markType;
+
+  @override
+  int get hashCode => cellIndex.hashCode ^ markType.hashCode;
 }

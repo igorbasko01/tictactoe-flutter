@@ -66,8 +66,8 @@ void main() {
 
   testWidgets('board screen shows a start new game button on game ending',
       (widgetTester) async {
-    when(() => mockTicTacToeBloc!.state).thenReturn(
-        GameOverTicTacToeState(Board(), BoardCondition.xWins));
+    when(() => mockTicTacToeBloc!.state)
+        .thenReturn(GameOverTicTacToeState(Board(), BoardCondition.xWins));
     await widgetTester.pumpWidget(MaterialApp(
       home: BlocProvider<TicTacToeBloc>.value(
         value: mockTicTacToeBloc!,
@@ -78,32 +78,42 @@ void main() {
     expect(startNewGameButtonFinder, findsOneWidget);
   });
 
-  group(
-      'first time tests, should be moved out of the group when correctly implemented',
-      () {
-    testWidgets(
-        'board screen allows tapping on an empty cell and invoke a make a move event',
-        (widgetTester) async {
-      await widgetTester.pumpWidget(const MaterialApp(
-        home: BoardScreen(),
-      ));
-      var cellFinder = find.byKey(const Key('cell_0'));
-      await widgetTester.tap(cellFinder);
-      verify(() =>
-          mockTicTacToeBloc!.add(MakeAMoveTicTacToeEvent(0, CellState.x)));
-    });
+  testWidgets(
+      'board screen allows tapping on an empty cell and invoke a make a move event',
+      (widgetTester) async {
+    when(() => mockTicTacToeBloc!.state).thenReturn(
+        PlayerTurnTicTacToeState(Board(), HumanPlayer(CellState.x)));
+    await widgetTester.pumpWidget(MaterialApp(
+      home: BlocProvider<TicTacToeBloc>.value(
+          value: mockTicTacToeBloc!, child: const BoardScreen()),
+    ));
+    var cellFinder = find.byKey(const Key('cell_0'));
+    await widgetTester.tap(cellFinder);
+    verify(
+        () => mockTicTacToeBloc!.add(MakeAMoveTicTacToeEvent(0, CellState.x)));
+  });
 
-    testWidgets(
-        'board screen disables tapping on the board at game ending state',
-        (widgetTester) async {
-      await widgetTester.pumpWidget(const MaterialApp(
-        home: BoardScreen(),
-      ));
-      var cellFinder = find.byKey(const Key('cell_0'));
-      await widgetTester.tap(cellFinder);
-      verify(() =>
-          mockTicTacToeBloc!.add(MakeAMoveTicTacToeEvent(0, CellState.x)));
-    });
+  testWidgets('board screen disables tapping on the board at game ending state',
+      (widgetTester) async {
+    when(() => mockTicTacToeBloc!.state)
+        .thenReturn(GameOverTicTacToeState(Board(), BoardCondition.xWins));
+    await widgetTester.pumpWidget(MaterialApp(
+      home: BlocProvider<TicTacToeBloc>.value(
+        value: mockTicTacToeBloc!,
+        child: const BoardScreen(),
+      ),
+    ));
+    var cellFinder = find.byKey(const Key('cell_0'));
+    await widgetTester.tap(cellFinder);
+    verifyNever(
+        () => mockTicTacToeBloc!.add(MakeAMoveTicTacToeEvent(0, CellState.x)));
+  });
+
+  group(
+      'first time tests, should be moved out of the group when correctly implemented. Delete the group when empty',
+      () {
+    testWidgets('tapping occupied cell should display the error from the bloc',
+        (widgetTester) async {});
 
     testWidgets(
         'board screen shows that x won when x wins', (widgetTester) async {});

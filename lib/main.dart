@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tictactoe_flutter/blocs/tictactoe_bloc.dart';
+import 'package:tictactoe_flutter/models/board.dart';
+import 'package:tictactoe_flutter/models/play_strategy.dart';
+import 'package:tictactoe_flutter/models/player.dart';
 import 'package:tictactoe_flutter/screens/board_screen.dart';
 
 void main() {
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: BlocProvider(
-        create: (context) => TicTacToeBloc(),
+        create: (context) => TicTacToeBloc(computerPlayer: ComputerPlayer(CellState.o, MinimaxPlayStrategy())),
         child: const BoardScreen(),
       ),
     );
