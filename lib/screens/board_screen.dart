@@ -70,7 +70,8 @@ class BoardScreen extends StatelessWidget {
                     MakeAMoveTicTacToeEvent(index, currentPlayer.markType));
               }
             },
-            child: Text(board.cells[index].toString()),
+            child: Text(board.cells[index].toString(),
+                style: const TextStyle(fontSize: 40)),
           ),
         );
       },
@@ -82,7 +83,10 @@ class BoardScreen extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(message ?? '', key: const Key('message'),),
+        Text(
+          message ?? '',
+          key: const Key('message'),
+        ),
         Expanded(child: _board(board, currentPlayer: currentPlayer)),
       ],
     );
@@ -94,7 +98,10 @@ class BoardScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(boardCondition.toString(), key: const Key('message'),),
+          Text(
+            boardCondition.toString(),
+            key: const Key('message'),
+          ),
           ElevatedButton(
             key: const Key('startGameButton'),
             onPressed: () {
