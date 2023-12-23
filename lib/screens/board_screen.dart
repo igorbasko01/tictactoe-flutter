@@ -11,31 +11,37 @@ class BoardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TicTacToeBloc, TicTacToeState>(
-        builder: (blocContext, state) {
-      if (state is TicTacToeInitialState) {
-        return Center(
-          child: ElevatedButton(
-              key: const Key('startGameButton'),
-              onPressed: () {
-                blocContext
-                    .read<TicTacToeBloc>()
-                    .add(StartGameTicTacToeEvent());
-              },
-              child: const Text('Start Game')),
-        );
-      } else if (state is PlayerTurnTicTacToeState) {
-        return _inAspectRatio(_boardWithMessage(state.board,
-            currentPlayer: state.player, message: state.errorMessage));
-      } else if (state is GameOverTicTacToeState) {
-        return _inAspectRatio(
-            _gameOver(state.board, state.boardCondition, blocContext));
-      } else {
-        return const Center(
-          child: Text('Something went wrong.'),
-        );
-      }
-    });
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tic Tac Toe'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: BlocBuilder<TicTacToeBloc, TicTacToeState>(
+          builder: (blocContext, state) {
+        if (state is TicTacToeInitialState) {
+          return Center(
+            child: ElevatedButton(
+                key: const Key('startGameButton'),
+                onPressed: () {
+                  blocContext
+                      .read<TicTacToeBloc>()
+                      .add(StartGameTicTacToeEvent());
+                },
+                child: const Text('Start Game')),
+          );
+        } else if (state is PlayerTurnTicTacToeState) {
+          return _inAspectRatio(_boardWithMessage(state.board,
+              currentPlayer: state.player, message: state.errorMessage));
+        } else if (state is GameOverTicTacToeState) {
+          return _inAspectRatio(
+              _gameOver(state.board, state.boardCondition, blocContext));
+        } else {
+          return const Center(
+            child: Text('Something went wrong.'),
+          );
+        }
+      }),
+    );
   }
 
   Widget _inAspectRatio(Widget child) {
