@@ -23,7 +23,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: BlocProvider(
-        create: (context) => TicTacToeBloc(computerPlayer: ComputerPlayer(CellState.o, MinimaxPlayStrategy())),
+        create: (context) => TicTacToeBloc(
+            computerPlayer: ComputerPlayer(
+                CellState.o, MinimaxPlayStrategy(playerMarkType: CellState.o))),
         child: const BoardScreen(),
       ),
     );

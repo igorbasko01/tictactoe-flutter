@@ -51,11 +51,11 @@ class MinimaxPlayStrategy implements PlayStrategy {
       // we will know after calculating its possible moves.
       // If previous player won, then no reason to continue calculating next moves.
       var score = boardScore(board, playerMarkType);
-      return MovesTree(board, [], score, score, latestMove: latestMove);
+      return MovesTree(board, [], score, score, score, latestMove: latestMove);
     }
     if (depth == 0) {
       var score = boardScore(board, playerMarkType);
-      return MovesTree(board, [], score, score, latestMove: latestMove);
+      return MovesTree(board, [], score, score, score, latestMove: latestMove);
     } else {
       var moves = possibleNextMoves(board, markType);
       var movesTrees = moves.map((move) {
@@ -65,8 +65,9 @@ class MinimaxPlayStrategy implements PlayStrategy {
             depth: depth - 1, latestMove: move);
       }).toList();
       var topScore = _maxScore(movesTrees);
-      var movesTree = MovesTree(
-          board, movesTrees, boardScore(board, playerMarkType), topScore,
+      var worstScore = _minScore(movesTrees);
+      var movesTree = MovesTree(board, movesTrees,
+          boardScore(board, playerMarkType), topScore, worstScore,
           latestMove: latestMove);
       return movesTree;
     }
@@ -86,9 +87,17 @@ class MinimaxPlayStrategy implements PlayStrategy {
     if (boardStates.isEmpty) {
       return null;
     }
-    var maxScore = _maxScore(boardStates);
-    var bestState = boardStates.firstWhere(
-        (movesTree) => movesTree.bestMoveScore == maxScore);
+    var noLoosingBranches = boardStates.where((movesTree) {
+      return movesTree.worstMoveScore != -1;
+    }).toList();
+
+    if (noLoosingBranches.isEmpty) {
+      return boardStates.first.latestMove;
+    }
+
+    var maxScore = _maxScore(noLoosingBranches);
+    var bestState = noLoosingBranches
+        .firstWhere((movesTree) => movesTree.bestMoveScore == maxScore);
     return bestState.latestMove;
   }
 
@@ -100,6 +109,15 @@ class MinimaxPlayStrategy implements PlayStrategy {
         .map((movesTree) => movesTree.bestMoveScore)
         .reduce((value, element) => max(value, element));
   }
+
+  int _minScore(List<MovesTree> boardStates) {
+    if (boardStates.isEmpty) {
+      return 0;
+    }
+    return boardStates
+        .map((movesTree) => movesTree.worstMoveScore)
+        .reduce((value, element) => min(value, element));
+  }
 }
 
 class MovesTree {
@@ -107,10 +125,11 @@ class MovesTree {
   final List<MovesTree> nextMoves;
   final int currentBoardScore;
   final int bestMoveScore;
+  final int worstMoveScore;
   final Move? latestMove;
 
   MovesTree(this.currentBoard, this.nextMoves, this.currentBoardScore,
-      this.bestMoveScore,
+      this.bestMoveScore, this.worstMoveScore,
       {this.latestMove});
 }
 

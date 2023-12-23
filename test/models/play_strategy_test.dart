@@ -423,6 +423,32 @@ void main() {
       expect(bestMove?.index, 2);
       expect(bestMove?.markType, CellState.x);
     });
+
+    test('block winning move', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(3, CellState.o);
+      board.setCell(1, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
+      final bestMove = strategy.chooseBestMove(movesTree.nextMoves);
+      expect(bestMove?.index, 2);
+      expect(bestMove?.markType, CellState.o);
+    });
+
+    test('select a move even if all moves are loosing', () {
+      final strategy = MinimaxPlayStrategy(playerMarkType: CellState.o);
+      final board = Board();
+      board.setCell(0, CellState.x);
+      board.setCell(1, CellState.o);
+      board.setCell(4, CellState.x);
+      board.setCell(8, CellState.o);
+      board.setCell(3, CellState.x);
+      final movesTree = strategy.buildMovesTree(board, CellState.o, depth: 3);
+      final bestMove = strategy.chooseBestMove(movesTree.nextMoves);
+      expect(bestMove?.index, 2);
+      expect(bestMove?.markType, CellState.o);
+    });
   });
 
   group('makeAMove', () {
